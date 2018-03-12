@@ -2,6 +2,7 @@ import pygame
 from depth_first_gen import depth_first_gen
 from random import choice
 from sys import exit
+import time
 
 COLORS = { 
 	0 : (0, 0, 0),
@@ -22,15 +23,18 @@ class PyManMain:
 
 	def __init__(self, width=800,height=800, _size=10):
 		pygame.init()
+		self.font = pygame.font.SysFont(None, 32)
 		self.clock = pygame.time.Clock()
 		self._size = _size
+		self.offset = 100
 		self.width = width
 		self.height = height
-		self.screen = pygame.display.set_mode((self.width, self.height))
+		self.screen = pygame.display.set_mode((self.width, self.height + self.offset))
 		self.screen.fill(BLACK)
 
 
 	def MainLoop(self):
+		start_time = time.time()
 		_directions = {
 			pygame.K_UP : -self._size,
 			pygame.K_DOWN : self._size,
@@ -42,10 +46,11 @@ class PyManMain:
 		current = path[0]
 		_end = path[-1]
 		while 1:
+
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					exit(0)
-				elif event.type == pygame.KEYUP:
+				elif event.type == pygame.KEYDOWN:
 					if current == _end:
 						self._size += 10
 						_directions = {
@@ -78,12 +83,17 @@ class PyManMain:
 					color = COLORS[grid[self._size*column + row]]
 					pygame.draw.rect(self.screen, color, 
 					[(self.width//self._size) * row,
-					(self.width//self._size) * column,
+					(self.height//self._size) * column + self.offset,
 					(self.width//self._size - 1), 
-					(self.width//self._size - 1)])
+					(self.height//self._size - 1)])
 
 
+			pygame.draw.rect(self.screen, BLACK, (0,0,self.width,self.offset))
+			clock_text = self.font.render(time.strftime("%H:%M:%S",time.localtime()), 1, (255,255,255))
+			points_text = self.font.render("{}".format(int(time.time() - start_time)), 1, (255,255,255))
 			self.clock.tick(60)
+			self.screen.blit(clock_text, (0,0))
+			self.screen.blit(points_text, (0,20))
 			pygame.display.flip()
 
 
