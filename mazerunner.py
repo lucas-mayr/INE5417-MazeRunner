@@ -209,6 +209,17 @@ class PyManMain:
 			self.clock.tick(60)
 			pygame.display.flip()
 
+	def draw_polygon(self, draw, ind, block_size, color):
+		draw.polygon([(ind%self._size)*block_size,
+						(ind//self._size)*block_size,
+						(ind%self._size)*block_size + block_size,
+						(ind//self._size)*block_size,
+						(ind%self._size)*block_size + block_size,
+						(ind//self._size)*block_size + block_size,
+						(ind%self._size)*block_size,
+						(ind//self._size)*block_size + block_size],
+						fill=(color))
+
 	def paint_solution_manhattan(self, block_size, path, n_colors=50):
 		start_time = time.time()
 		size = self._size*self._size
@@ -242,15 +253,7 @@ class PyManMain:
 		while True:
 			# LEFT SLOT
 			if self.maze.check_bounds(ind, -1) and ind%self._size > (ind-1)%self._size and _maze[ind -1]==2:
-				draw.polygon([(ind%self._size)*block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size + block_size,
-								(ind%self._size)*block_size,
-								(ind//self._size)*block_size + block_size],
-								fill=(tuple(colors[col])))
+				self.draw_polygon(draw, ind, block_size,tuple(colors[col]))
 				_maze[ind] = -1
 				ind = ind-1
 				col = (col + 1)%len(colors)
@@ -258,15 +261,8 @@ class PyManMain:
 
 			# RIGHT SLOT
 			if self.maze.check_bounds(ind, +1) and ind%self._size < (ind+1)%self._size and _maze[ind +1] == 2:
-				draw.polygon([(ind%self._size)*block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size + block_size,
-								(ind%self._size)*block_size,
-								(ind//self._size)*block_size + block_size],
-								fill=(tuple(colors[col])))
+				self.draw_polygon(draw, ind, block_size,tuple(colors[col]))
+
 				_maze[ind] = -1
 				ind = ind+1
 				col = (col + 1)%len(colors)
@@ -274,15 +270,8 @@ class PyManMain:
 
 			# UPPER SLOT
 			if self.maze.check_bounds(ind, -self._size) and _maze[ind - self._size] == 2:
-				draw.polygon([(ind%self._size)*block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size + block_size,
-								(ind%self._size)*block_size,
-								(ind//self._size)*block_size + block_size],
-								fill=(tuple(colors[col])))
+				self.draw_polygon(draw, ind, block_size,tuple(colors[col]))
+
 				_maze[ind] = -1
 				ind = ind - self._size
 				col = (col + 1)%len(colors)
@@ -290,29 +279,15 @@ class PyManMain:
 
 			# DOWN SLOT
 			if self.maze.check_bounds(ind, +self._size) and _maze[ind + self._size] == 2:
-				draw.polygon([(ind%self._size)*block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size + block_size,
-								(ind%self._size)*block_size,
-								(ind//self._size)*block_size + block_size],
-								fill=(tuple(colors[col])))
+				self.draw_polygon(draw, ind, block_size,tuple(colors[col]))
+
 				_maze[ind] = -1
 				ind = ind + self._size
 				col = (col + 1)%len(colors)
 				continue
 
-			draw.polygon([(ind%self._size)*block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size,
-								(ind%self._size)*block_size + block_size,
-								(ind//self._size)*block_size + block_size,
-								(ind%self._size)*block_size,
-								(ind//self._size)*block_size + block_size],
-								fill=(tuple(colors[col])))
+			self.draw_polygon(draw, ind, block_size,tuple(colors[col]))
+
 			break
 
 		print("Painting solution... 100%")
