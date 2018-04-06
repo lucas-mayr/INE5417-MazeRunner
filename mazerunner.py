@@ -181,9 +181,9 @@ class PyManMain:
         
         ranks = self.leaderboard.rankings()
         for ind, stats in enumerate(ranks):
-            name, point = str(stats[0]), str(stats[1])
+            name, point = stats[0], stats[1]
 
-            stats_text = "{:02d} | {} | {}".format(ind+1, name, point)
+            stats_text = "{:02d} | {} | {:04d}".format(ind+1, name, point)
             pygame.draw.rect(self.screen, BACKGROUNDS[ind], (0, 80 + font2.size(stats_text)[1]*ind, self.width, font2.size(stats_text)[1]))
             stats_text_font = font2.render(stats_text, 1, (0, 0, 0))
             self.screen.blit(
@@ -210,6 +210,7 @@ class PyManMain:
         }
 
         cleared = 0
+        placement = 0
         grid = self.maze.copy_array()
 
         current = self.maze.start
@@ -236,7 +237,7 @@ class PyManMain:
                             5 +
                             self.font.size(points_text)[1] +
                             self.font.size(solve_text)[1]):
-                        self.qualify_sceen(points)
+                        self.qualify_sceen(placement)
                         self.solve_screen()
                         self.__init__(self.width, self.height, 10)
                         return
