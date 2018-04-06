@@ -1,3 +1,4 @@
 *.bmp
 *.pyc
 __pycache__/
+env/
