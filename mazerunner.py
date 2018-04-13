@@ -30,6 +30,7 @@ class PyManMain:
 
     def __init__(self, width=480, height=480, _size=10, leader_size=10):
         pygame.init()
+        self.leader_size = leader_size
         self.leaderboard = leaderboard.LeaderBoard('test.json', leader_size)
         self.font = pygame.font.SysFont(None, 28)
         self.clock = pygame.time.Clock()
@@ -309,12 +310,15 @@ class PyManMain:
              self.offset))
 
         welcome_text = "WELCOME TO MAZE BLITZ"
-        settings_text = "Press 'S' for Settings"
+        settings_text = "Press 'S' for Difficulty Settings"
+        leaderboard_text = "Press 'L' for Leaderboard"
         start_text = "'Enter' to start playing"
 
         welcome_text_font = self.font.render(welcome_text, 1, (255, 255, 255))
         settings_text_font = self.font.render(
             settings_text, 1, (255, 255, 255))
+        leaderboard_text_font = self.font.render(
+            leaderboard_text, 1, (255, 255, 255))
         start_text_font = self.font.render(start_text, 1, (255, 255, 255))
 
         while True:
@@ -335,6 +339,7 @@ class PyManMain:
                             self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
                         self.leaderboard_screen()
 
+
             pygame.draw.rect(
                 self.screen,
                 BLACK,
@@ -350,9 +355,14 @@ class PyManMain:
                 ((self.width - self.font.size(settings_text)[0]) / 2,
                  ((self.height + self.offset) - self.font.size(settings_text)[1]) / 4))
             self.screen.blit(
+                leaderboard_text_font,
+                ((self.width - self.font.size(leaderboard_text)[0]) / 2,
+                 (((self.height + self.offset) - self.font.size(leaderboard_text)[1]) / 4)+self.font.size(settings_text)[1]))
+            self.screen.blit(
                 start_text_font,
                 ((self.width - self.font.size(start_text)[0]) / 2,
                  ((self.height + self.offset) - self.font.size(start_text)[1]) / 2))
+
             self.clock.tick(60)
             pygame.display.flip()
 
@@ -360,17 +370,18 @@ class PyManMain:
         size_ = self._size
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.width, self.height+self.offset))
 
-        welcome_text = "Adjust Initial Level"
-        instruction_text = "Use the Up/Down keyboard keys"
-        plus_text = "^"
-        minus_text = "v"
+        welcome_text = "Settings"
+        instruction_text = "Use the Up/Down keys to Adjust Difficulty"
+        plus_text = "Initial Difficulty"
         level_text = "1"
         exit_text = "Press Enter to save and return"
+        screen_help_text = "Press 'F1' and 'F2' to adjust Screen Size"
 
+        screen_help_text_font = self.font.render(
+            screen_help_text, 1, (255, 255, 255))
         welcome_text_font = self.font.render(welcome_text, 1, (255, 255, 255))
         instruction_text_font = self.font.render(instruction_text, 1, (255, 255, 255))
         plus_text_font = self.font.render(plus_text, 1, (255, 255, 255))
-        minus_text_font = self.font.render(minus_text, 1, (255, 255, 255))
         level_text_font = self.font.render(level_text, 1, (255, 255, 255))
         exit_text_font = self.font.render(exit_text, 1, (255, 255, 255))
 
@@ -397,11 +408,15 @@ class PyManMain:
                     elif event.key == pygame.K_RETURN:
                         self.resize(self.width, self.height, size_)
                         return
+                    elif event.key == pygame.K_F1:
+                        self.__init__(self.width+100, self.height+100, _size=self._size,leader_size=self.leader_size)
+                    elif event.key == pygame.K_F2:
+                        self.__init__(self.width-100, self.height-100, _size=self._size,leader_size=self.leader_size) if (self.width - 100 > 0 and self.height - 100 > 0) else None
 
             self.screen.blit(
                 welcome_text_font, ((self.width - self.font.size(welcome_text)[0]) / 2, 20))
             self.screen.blit(
-                instruction_text_font, ((self.width - self.font.size(instruction_text)[0]) / 2, self.font.size(welcome_text)[1]+100))
+                instruction_text_font, ((self.width - self.font.size(instruction_text)[0]) / 2, ((self.height + self.offset) - self.font.size(screen_help_text)[1])/4+self.font.size(screen_help_text)[1]))
             self.screen.blit(
                 plus_text_font,
                 ((self.width -
@@ -413,16 +428,6 @@ class PyManMain:
                     2 -
                     self.font.size(level_text)[1]))
             self.screen.blit(
-                minus_text_font,
-                ((self.width -
-                  self.font.size(minus_text)[0]) /
-                 2,
-                 ((self.height +
-                   self.offset) -
-                  self.font.size(minus_text)[1]) /
-                    2 +
-                    self.font.size(level_text)[1]))
-            self.screen.blit(
                 level_text_font,
                 ((self.width - self.font.size(level_text)[0]) / 2,
                  ((self.height + self.offset) - self.font.size(level_text)[1]) / 2))
@@ -430,6 +435,11 @@ class PyManMain:
                 exit_text_font,
                 ((self.width - self.font.size(exit_text)[0]) / 2,
                  ((self.height + self.offset) - self.font.size(exit_text)[1])))
+            self.screen.blit(
+                screen_help_text_font,
+                ((self.width - self.font.size(screen_help_text)[0]) / 2,
+                 ((self.height + self.offset) - self.font.size(screen_help_text)[1])/4))
+
 
             self.clock.tick(60)
             pygame.display.flip()
