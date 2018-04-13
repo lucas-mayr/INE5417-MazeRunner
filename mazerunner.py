@@ -409,9 +409,15 @@ class PyManMain:
                         self.resize(self.width, self.height, size_)
                         return
                     elif event.key == pygame.K_F1:
-                        self.__init__(self.width+100, self.height+100, _size=self._size,leader_size=self.leader_size)
+                        self.width += 100
+                        self.height += 100
+                        self.screen = pygame.display.set_mode(
+                            (self.width, self.height + self.offset))
                     elif event.key == pygame.K_F2:
-                        self.__init__(self.width-100, self.height-100, _size=self._size,leader_size=self.leader_size) if (self.width - 100 > 0 and self.height - 100 > 0) else None
+                        self.width = max(100, self.width-100)
+                        self.height = max(100, self.height-100)
+                        self.screen = pygame.display.set_mode(
+                            (self.width, self.height + self.offset))
 
             self.screen.blit(
                 welcome_text_font, ((self.width - self.font.size(welcome_text)[0]) / 2, 20))
