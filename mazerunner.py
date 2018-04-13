@@ -47,22 +47,22 @@ class PyManMain:
         self.__init__(width, height, size)
 
     def qualify_sceen(self, points):
+        # Variables
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.width, self.height+self.offset))
         letter_offset = 0
         letter_qt = 0
         letters = string.ascii_uppercase
         cont = 0
         blip_cont = 1
-
+        KEY_DICT = {pygame.K_UP:1,pygame.K_RIGHT:1,pygame.K_DOWN:-1,pygame.K_LEFT:-1}
+        # Texts
         welcome_text = "HALL OF FAME"
         instruction_text = "Use the Up/Down keyboard keys"
         blip = "_"
-
         letter = letters[cont].ljust(3)
         minus_text = str(points)
-
         exit_text = "Press Enter to save"
-
+        # Fonts
         welcome_text_font = self.font.render(welcome_text, 1, (255, 255, 255))
         instruction_text_font = self.font.render(instruction_text, 1, (255, 255, 255))
         blip_font = self.font.render(blip, 1, (255, 255, 255))
@@ -70,27 +70,13 @@ class PyManMain:
         minus_text_font = self.font.render(minus_text, 1, (255, 255, 255))
         exit_text_font = self.font.render(exit_text, 1, (255, 255, 255))
 
-
+        # Screen Loop
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit(0)
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP or event.key == pygame.K_RIGHT:
-                        cont = (cont+1)%len(letters)
-                        letter = (letter[:letter_qt] + letters[cont]).ljust(3)
-                        letter_font = self.font.render(
-                            letter, 1, (255, 255, 255))
-                        pygame.draw.rect(
-                            self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
-                    elif event.key == pygame.K_DOWN or event.key == pygame.K_LEFT:
-                        cont = (cont-1)%len(letters)
-                        letter = (letter[:letter_qt] + letters[cont]).ljust(3)
-                        letter_font = self.font.render(
-                            letter, 1, (255, 255, 255))
-                        pygame.draw.rect(
-                            self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
-                    elif event.key == pygame.K_RETURN:
+                    if event.key == pygame.K_RETURN:
                         if letter_qt == 2:
                             self.leaderboard.add_player([letter, points])
                             return
@@ -102,7 +88,18 @@ class PyManMain:
                             letter, 1, (255, 255, 255))
                             pygame.draw.rect(
                                 self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
+                    else:
+                        try:
+                            cont = (cont+KEY_DICT[event.key])%len(letters)
+                            letter = (letter[:letter_qt] + letters[cont]).ljust(3)
+                            letter_font = self.font.render(
+                                letter, 1, (255, 255, 255))
+                            pygame.draw.rect(
+                                self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
+                        except IndexError:
+                            pass
 
+            # Paint screen objects
             self.screen.blit(
                 welcome_text_font, ((self.width - self.font.size(welcome_text)[0]) / 2, 20))
             self.screen.blit(
@@ -160,29 +157,29 @@ class PyManMain:
 
     def leaderboard_screen(self):
         font2 = pygame.font.SysFont('monospace', 28)
-        BACKGROUNDS = []
-        for colour in list(Color('red').range_to(Color("blue"), self.leaderboard.size)):
-            BACKGROUNDS.append([int(c*255) for c in colour.rgb])
 
         welcome_text = "HALL OF FAME"
         exit_text = "Press Enter to return"
         
-        pygame.draw.rect(self.screen, BLACK, (0, 0, self.width, self.offset))
+        pygame.draw.rect(self.screen, BLACK, (0, 0, self.width, self.height))
         
         welcome_text_font = self.font.render(welcome_text, 1, (255, 255, 255))
         exit_text_font = self.font.render(exit_text, 1, (255, 255, 255))
-        
+        # Paints the text
         self.screen.blit(
                 welcome_text_font, ((self.width - self.font.size(welcome_text)[0]) / 2, 20))
         self.screen.blit(
                 exit_text_font,
                 ((self.width - self.font.size(exit_text)[0]) / 2,
                  ((self.height + self.offset) - font2.size(exit_text)[1])))
-        
+
         ranks = self.leaderboard.rankings()
+        BACKGROUNDS = []
+        for colour in list(Color('red').range_to(Color("blue"), len(ranks))):
+            BACKGROUNDS.append([int(c*255) for c in colour.rgb])
+        # Paints the rankings
         for ind, stats in enumerate(ranks):
             name, point = stats[0], stats[1]
-
             stats_text = "{:02d} | {} | {:04d}".format(ind+1, name, point)
             pygame.draw.rect(self.screen, BACKGROUNDS[ind], (0, 80 + font2.size(stats_text)[1]*ind, self.width, font2.size(stats_text)[1]))
             stats_text_font = font2.render(stats_text, 1, (0, 0, 0))
@@ -190,7 +187,7 @@ class PyManMain:
                 stats_text_font, ((self.width - font2.size(stats_text)[0]) / 2, 80 + font2.size(stats_text)[1]*ind))
 
         pygame.display.flip()
-        
+        # Waits for the user to leave
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -274,6 +271,7 @@ class PyManMain:
                         except Exception as err:
                             print(err)
 
+            # Draw the maze
             for column in range(self._size):
                 for row in range(self._size):
                     color = COLORS[grid[self._size * column + row]]
@@ -537,5 +535,5 @@ class PyManMain:
 
 
 if __name__ == "__main__":
-    PyManMain().start_menu()
+    PyManMain(leader_size=15).start_menu()
     # PyManMain().leaderboard_screen()

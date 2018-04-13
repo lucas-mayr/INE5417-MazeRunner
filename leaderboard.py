@@ -16,7 +16,7 @@ class LeaderBoard:
 		return temp
 
 	def clear_rankings(self):
-		self.update_rankings([["***", 0]]*self.size)
+		self.update_rankings([["AAA", 0]]*self.size)
 
 	def rankings(self):
 		return self.__load_file()
