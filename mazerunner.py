@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 from colour import Color
 
 import maze
-import leaderboard
+import new_leaderboard as leaderboard
 
 COLORS = {
     0: (0, 0, 0),
@@ -31,7 +31,7 @@ class PyManMain:
     def __init__(self, width=480, height=480, _size=10, leader_size=10):
         pygame.init()
         self.leader_size = leader_size
-        self.leaderboard = leaderboard.LeaderBoard('test.json', leader_size)
+        self.leaderboard = leaderboard.LeaderBoard("MazeRunner", "postgres", "postgres", size=leader_size)
         self.font = pygame.font.SysFont(None, 28)
         self.clock = pygame.time.Clock()
         self._size = _size
@@ -97,7 +97,7 @@ class PyManMain:
                                 letter, 1, (255, 255, 255))
                             pygame.draw.rect(
                                 self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
-                        except IndexError:
+                        except (IndexError, KeyError):
                             pass
 
             # Paint screen objects
@@ -235,7 +235,8 @@ class PyManMain:
                             5 +
                             self.font.size(points_text)[1] +
                             self.font.size(solve_text)[1]):
-                        self.qualify_sceen(placement)
+                        if self.leaderboard.check_ranking(placement):
+                            self.qualify_sceen(placement)
                         self.solve_screen()
                         self.__init__(self.width, self.height, 10)
                         return
@@ -310,7 +311,7 @@ class PyManMain:
              self.offset))
 
         welcome_text = "WELCOME TO MAZE BLITZ"
-        settings_text = "Press 'S' for Difficulty Settings"
+        settings_text = "Press 'S' for Settings"
         leaderboard_text = "Press 'L' for Leaderboard"
         start_text = "'Enter' to start playing"
 
