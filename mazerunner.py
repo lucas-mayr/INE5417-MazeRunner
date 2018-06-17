@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 from colour import Color
 
 import maze
-import leaderboard
+import new_leaderboard as leaderboard
 
 COLORS = {
     0: (0, 0, 0),
@@ -30,8 +30,9 @@ class PyManMain:
 
     def __init__(self, width=480, height=480, _size=10, leader_size=10):
         pygame.init()
+        self.colour_offset = 0
         self.leader_size = leader_size
-        self.leaderboard = leaderboard.LeaderBoard('test.json', leader_size)
+        self.leaderboard = leaderboard.LeaderBoard("MazeRunner", "postgres", "postgres", size=leader_size)
         self.font = pygame.font.SysFont(None, 28)
         self.clock = pygame.time.Clock()
         self._size = _size
@@ -97,7 +98,7 @@ class PyManMain:
                                 letter, 1, (255, 255, 255))
                             pygame.draw.rect(
                                 self.screen, BLACK, (0, 0, self.width, self.height + self.offset))
-                        except IndexError:
+                        except (IndexError, KeyError):
                             pass
 
             # Paint screen objects
@@ -216,6 +217,8 @@ class PyManMain:
 
         solve_text = " SOLVE "
         points_text = "{}".format((self._size//10)/(int(time.time() - start_time + 1)))
+        color_text = "Press 'C' to change the color scheme"
+        save_empty_text = "Press 'P' to save the maze to an image"
 
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.width, self.offset))
         
@@ -235,7 +238,8 @@ class PyManMain:
                             5 +
                             self.font.size(points_text)[1] +
                             self.font.size(solve_text)[1]):
-                        self.qualify_sceen(placement)
+                        if self.leaderboard.check_ranking(placement):
+                            self.qualify_sceen(placement)
                         self.solve_screen()
                         self.__init__(self.width, self.height, 10)
                         return
@@ -243,7 +247,6 @@ class PyManMain:
                     if self.maze.check_end(current):
                         cleared += 1
                         placement = points
-                        print(cleared, placement)
                         self._size += 10
                         _directions = {
                             pygame.K_UP: -self._size,
@@ -262,6 +265,12 @@ class PyManMain:
                     elif event.key == pygame.K_SPACE:
                         grid[current] = 5
 
+                    elif event.key == pygame.K_p:
+                        self.paint_solution_default(10, "clean")
+
+                    elif event.key == pygame.K_c:
+                        self.colour_offset = (self.colour_offset + 1)%(len(COLORS))
+
                     else:
                         try:
                             next_current = current + _directions[event.key]
@@ -275,7 +284,7 @@ class PyManMain:
             # Draw the maze
             for column in range(self._size):
                 for row in range(self._size):
-                    color = COLORS[grid[self._size * column + row]]
+                    color = COLORS[(grid[self._size * column + row]+self.colour_offset)%len(COLORS)]
                     pygame.draw.rect(self.screen, color,
                                      [(self.width / self._size) * row,
                                       (self.height / self._size) * column + self.offset,
@@ -294,6 +303,14 @@ class PyManMain:
                 solve_text, 1, (255, 255, 255), RED)
             self.screen.blit(
                 solve_text_font, (5, 5 + self.font.size(points_text)[1]))
+            color_text_font = self.font.render(
+                color_text, 1, (255, 255, 255))
+            self.screen.blit(
+                color_text_font, (5, 10 + self.font.size(color_text)[1] + self.font.size(solve_text)[1]))
+            save_empty_text_font = self.font.render(
+                save_empty_text, 1, (255, 255, 255))
+            self.screen.blit(
+                save_empty_text_font, (5, 10 + self.font.size(save_empty_text)[1] + self.font.size(color_text)[1] + self.font.size(solve_text)[1]))
 
             self.clock.tick(60)
             pygame.display.flip()
@@ -310,7 +327,7 @@ class PyManMain:
              self.offset))
 
         welcome_text = "WELCOME TO MAZE BLITZ"
-        settings_text = "Press 'S' for Difficulty Settings"
+        settings_text = "Press 'S' for Settings"
         leaderboard_text = "Press 'L' for Leaderboard"
         start_text = "'Enter' to start playing"
 
@@ -461,8 +478,20 @@ class PyManMain:
                       (ind // self._size) * block_size + block_size],
                      fill=(color))
 
+    def paint_solution_default(self, block_size, path):
+        array = self.maze.maze
+        size = self.maze.side
+        img = Image.new(
+            '1',
+            (size * block_size,
+             size * block_size))
+        draw = ImageDraw.Draw(img)
+        for i,v in enumerate(array):
+            self.draw_polygon(draw, i, block_size, v)
+
+        img.save("{}_solution.bmp".format(path), quality=100, subsampling=0)
+
     def paint_solution_manhattan(self, block_size, path, n_colors=100):
-        start_time = time.time()
         # size = self._size * self._size
         img = Image.new(
             'RGB',
@@ -544,10 +573,7 @@ class PyManMain:
 
             break
 
-        print("Painting solution... 100%")
         img.save("{}_solution.bmp".format(path), quality=100, subsampling=0)
-        elapsed_time = time.time() - start_time
-        print("Elapsed time painting solution : {}".format(elapsed_time))
 
 
 if __name__ == "__main__":

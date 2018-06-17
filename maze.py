@@ -107,17 +107,11 @@ class Maze:
                 maze_next.remove(slot)
 
                 progress += 100
-                print(
-                    "Generating Maze...",
-                    progress //
-                    self.size,
-                    "%\r",
-                    end='')
+                
         except IndexError:
             for i, slot in enumerate(self.maze):
                 if slot is None:
                     self.maze[i] = 0
-        print("Generating Maze... 100%")
 
         end = [i + (self.side * (self.side - 2)) for i,
                v in enumerate(self.maze[-self.side * 2:-self.side]) if v == 1][-1]
@@ -126,13 +120,10 @@ class Maze:
         self.exit = end + self.side
         elapsed_time = default_timer() - start_time
 
-        print("Elapsed time generating Maze : {}".format(elapsed_time))
-
     def solve_maze(self):
         start_time = default_timer()
         maze_path = [self.start, self.start + self.side]
         dead_ends = []
-        print("Solving Maze\nThis may take a while...")
         self.pathing = list(map(lambda x: x, self.maze))
         while maze_path[-1] != self.exit:
             slot = maze_path[-1]
@@ -175,9 +166,6 @@ class Maze:
         self.pathing[self.exit] = 2
         self.pathing[self.start] = 2
         elapsed_time = default_timer() - start_time
-
-        print("maze path length : {}".format(len(maze_path)))
-        print("Elapsed time solving maze : {}".format(elapsed_time))
 
 
 if __name__ == "__main__":
