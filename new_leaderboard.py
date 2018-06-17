@@ -41,7 +41,6 @@ class LeaderBoard:
 
 	def add_player(self, stats):
 		for i, stat in enumerate(self.rank):
-			print(stat)
 			if stats[1] > stat[1]:
 				self.rank.insert(i, stats)
 				self.rank.pop()
