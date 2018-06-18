@@ -9,15 +9,19 @@ from colour import Color
 
 import maze
 import new_leaderboard as leaderboard
+from itertools import product
 
-COLORS = {
-    0: (0, 0, 0),
-    1: (255, 255, 255),
-    2: (150, 150, 0),
-    4: (255, 0, 0),
-    3: (0, 255, 0),
-    5: (0, 0, 255)
-}
+
+# COLORS = [
+#     (0, 0, 0),
+#     (255, 255, 255),
+#     (150, 150, 0),
+#     (255, 0, 0),
+#     (0, 255, 0),
+#     (0, 0, 255)
+# ]
+
+COLORS = list(product((0,255,100),repeat=3))
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)

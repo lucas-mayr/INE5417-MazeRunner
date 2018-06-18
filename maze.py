@@ -53,6 +53,7 @@ class Maze:
         return position == self.exit
 
     def generate_new_maze(self, name=None):
+        self.maze = self.template_maze()
         actual_name = name or self.name
 
         start_time = default_timer()
